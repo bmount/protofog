@@ -3,6 +3,23 @@
 <head>
 <meta charset="utf-8">
 <script src="lib/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.geo.tile.v0.min.js"></script>
+
+<style>
+
+body {
+  margin: 0;
+}
+
+path {
+  fill: none;
+  stroke: red;
+  stroke-linejoin: round;
+  stroke-width: 1.5px;
+}
+
+</style>
+
 </head>
 
 <body>
@@ -16,6 +33,54 @@ function showLoad (err, data) {
   console.log(data);
 }
 
-d3.json('data/sf_simplified.geojson', showLoad);
+var width = Math.max(960, window.innerWidth),
+    height = Math.max(500, window.innerHeight);
+
+var tile = d3.geo.tile()
+    .size([width, height]);
+
+var projection = d3.geo.mercator()
+  .scale((1 << 12) / 2 / Math.PI)
+  .translate([width / 2, height / 2]);
+
+var center = projection([-122.5, 37.7]);
+
+var path = d3.geo.path()
+  .projection(projection);
+
+var zoom = d3.behavior.zoom()
+  .scale(projection.scale() * 2 * Math.PI)
+  .scaleExtent([1 << 11, 1 << 22])
+  .translate([width - center[0], height - center[1]])
+  .on("zoom", zoomed);
+
+projection
+    .scale(1 / 2 / Math.PI)
+    .translate([0, 0]);
+
+var svg = body.append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+var vector = svg.append("path");
+
+
+function zoomed() {
+  var tiles = tile
+      .scale(zoom.scale())
+      .translate(zoom.translate())
+      ();
+
+  vector
+      .attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")")
+      .style("stroke-width", 1 / zoom.scale());
+}
+
+d3.json('data/sf_simplified.geojson', function (err, data) {
+  if (err) return console.log(err);
+  svg.call(zoom);
+  vector.attr('d', function () { return path(data); })
+  zoomed();
+});
 
 </script>
