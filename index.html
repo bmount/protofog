@@ -25,6 +25,10 @@ path {
   stroke: red;
 }
 
+.inactive {
+  visibility: hidden;
+}
+
 </style>
 
 </head>
@@ -57,16 +61,23 @@ var svg = body.append("svg")
   .attr("width", width)
   .attr("height", height);
 
+var colScale = d3.scale.category20c()
+
 var vector = svg.append("g");
 
-function loadIslands (data) {
+var islandsLoaded = false;
+
+function showIslands (data) {
   console.log(data);
+  if (!(islandsLoaded)) {
+    requestIslands();
+    return;
+  }
   projection.center([-122.441884929543,37.7550733441484])
   vector.append('path').attr('d', function () { return path(data) })
   .attr('stroke-dasharray',"2, 5")
   .classed('islas', true)
 }
-
 
 d3.json('data/sf_filled_grid.geojson', function (err, data) {
   console.log(data);
@@ -76,10 +87,15 @@ d3.json('data/sf_filled_grid.geojson', function (err, data) {
   .enter().append('g').append('path').attr('d', function (d) { return path(d); })
   .attr('stroke-dasharray',"2, 5")
   .classed('gridbucket', true)
+  .style('fill', function (d, i) { return colScale(i%20); })
+  .on('click', showIslands)
 });
 
-d3.json('data/islands_sf.geojson', function (err, data) {
-  loadIslands(data);
-})
+function requestIslands() {
+  d3.json('data/islands_sf.geojson', function (err, data) {
+    islandsLoaded = true;
+    showIslands(data);
+  })
+}
 
 </script>
