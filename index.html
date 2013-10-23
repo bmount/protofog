@@ -39,11 +39,6 @@ path {
 
 var body = d3.select('body');
 
-function showLoad (err, data) {
-  if (err) return console.log(err);
-  console.log(data);
-}
-
 var width = Math.max(960, window.innerWidth),
     height = Math.max(500, window.innerHeight);
 
@@ -61,11 +56,7 @@ var svg = body.append("svg")
   .attr("width", width)
   .attr("height", height);
 
-var colScale = d3.scale.category20c();
-
 var vector = svg.append("g");
-
-var islandsLoaded = false;
 
 var xBucket = d3.scale.quantile().domain([-122.51948, -122.3515810]).range(d3.range(0,7))
 var yBucket = d3.scale.quantile().domain([37.7031319981, 37.8168449993]).range(d3.range(0,7))
@@ -88,16 +79,8 @@ d3.json('data/sf_filled_grid.geojson', function (err, data) {
   .attr('stroke-dasharray',"2, 5")
   .classed('gridbucket', true)
   .style('fill', function (d, i) { return 'white'; })
-  //.style('fill', function (d, i) { return colScale(i%20); })
   .attr('id', function (d) { return 'block-'+bucketString(d) })
 });
-
-function requestIslands() {
-  d3.json('data/islands_sf.geojson', function (err, data) {
-    islandsLoaded = true;
-    showIslands(data);
-  })
-}
 
 var ws = new WebSocket('ws://localhost:8008/api')
 ws.onmessage = function (msg) {
@@ -105,10 +88,8 @@ ws.onmessage = function (msg) {
     var d = JSON.parse(msg.data),
         data = JSON.parse(d.data),
         sel = '#block-'+bucketString(data.coords, true);
-    console.log(sel)
     d3.select(sel).transition(10000).style('fill', data.color);
   } catch (e) {
-    console.log(e);
   }
 }
 
