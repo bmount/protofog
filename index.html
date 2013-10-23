@@ -48,7 +48,7 @@ var width = Math.max(960, window.innerWidth),
     height = Math.max(500, window.innerHeight);
 
 var tile = d3.geo.tile()
-    .size([width, height]);
+  .size([width, height]);
 
 var projection = d3.geo.mercator()
   .scale((1 << 18))
@@ -61,34 +61,35 @@ var svg = body.append("svg")
   .attr("width", width)
   .attr("height", height);
 
-var colScale = d3.scale.category20c()
+var colScale = d3.scale.category20c();
 
 var vector = svg.append("g");
 
 var islandsLoaded = false;
 
-function showIslands (data) {
-  console.log(data);
-  if (!(islandsLoaded)) {
-    requestIslands();
-    return;
-  }
-  projection.center([-122.441884929543,37.7550733441484])
-  vector.append('path').attr('d', function () { return path(data) })
-  .attr('stroke-dasharray',"2, 5")
-  .classed('islas', true)
+var xBucket = d3.scale.quantile().domain([-122.51948, -122.3515810]).range(d3.range(0,7))
+var yBucket = d3.scale.quantile().domain([37.7031319981, 37.8168449993]).range(d3.range(0,7))
+
+function bucketize (d, point) {
+  if (point) { var ctr = d; }
+  else { var ctr = projection.invert(path.centroid(d)); }
+  return [xBucket(ctr[0]), yBucket(ctr[1])];
+}
+
+function bucketString(d, point) {
+  return bucketize(d, point).toString().replace(',','-');
 }
 
 d3.json('data/sf_filled_grid.geojson', function (err, data) {
-  console.log(data);
   if (err) return console.log(err);
   projection.center([-122.441884929543,37.7550733441484])
   vector.selectAll('g').data(data['features'])
   .enter().append('g').append('path').attr('d', function (d) { return path(d); })
   .attr('stroke-dasharray',"2, 5")
   .classed('gridbucket', true)
-  .style('fill', function (d, i) { return colScale(i%20); })
-  .on('click', showIslands)
+  .style('fill', function (d, i) { return 'white'; })
+  //.style('fill', function (d, i) { return colScale(i%20); })
+  .attr('id', function (d) { return 'block-'+bucketString(d) })
 });
 
 function requestIslands() {
@@ -99,6 +100,16 @@ function requestIslands() {
 }
 
 var ws = new WebSocket('ws://localhost:8008/api')
-ws.onmessage = function (msg) { console.log(msg); }
+ws.onmessage = function (msg) {
+  try {
+    var d = JSON.parse(msg.data),
+        data = JSON.parse(d.data),
+        sel = '#block-'+bucketString(data.coords, true);
+    console.log(sel)
+    d3.select(sel).transition(10000).style('fill', data.color);
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 </script>

@@ -41,8 +41,10 @@ class FogListener(threading.Thread):
             distribute_fog_news(msg)
 
 app = tornado.web.Application([
-    (r'/api', FogReporter),
+    (r'/api', FogReporter)
 ])
+
+app.debug = True
 
 if __name__ == '__main__':
     fog_incoming = FogListener(['basic', 'medium', 'severe', 'practically_submerged'])
