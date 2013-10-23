@@ -5,7 +5,7 @@ import random
 import time
 import os
 
-conn = psycopg2.connect(database=os.environ.get('PROTOFOG_DB'), password=os.environ.get('PROTOFOG_PASS'))
+conn = psycopg2.connect(database=os.environ.get('PROTOFOG_DB'), user=os.environ.get('PROTOFOG_USER'), password=os.environ.get('PROTOFOG_PASS'))
 cur = conn.cursor()
 
 # return the grid and the proportion of the grid that is in the sunny SE triangle
