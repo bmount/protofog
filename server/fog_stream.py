@@ -20,7 +20,7 @@ def distribute_fog_news(msg, FOG_INQUIRERS=FOG_INQUIRERS):
 class FogReporter(tornado.websocket.WebSocketHandler):
     global r
     def open(self):
-        self.write_message(r.get('latest'))
+        #self.write_message(r.get('latest'))
         FOG_INQUIRERS.append(self)
 
     def on_message(self):

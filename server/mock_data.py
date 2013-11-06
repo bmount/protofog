@@ -47,4 +47,4 @@ r = redis.Redis()
 while True:
     rp = random_point()
     r.publish('medium', json.dumps({'coords': rp[0]['coordinates'], 'color': rgb_to_hex(gen_col(rp[1]))}))
-    time.sleep(.5)
+    time.sleep(.05)

@@ -79,7 +79,7 @@ d3.json('data/sf_filled_grid.geojson', function (err, data) {
   .attr('stroke-dasharray',"2, 5")
   .classed('gridbucket', true)
   .style('fill', function (d, i) { return 'white'; })
-  .attr('id', function (d) { return 'block-'+bucketString(d) })
+  .attr('id', function (d) { return 'block-'+bucketString(d); })
 });
 
 var ws = new WebSocket('ws://localhost:8008/api')
@@ -90,6 +90,7 @@ ws.onmessage = function (msg) {
         sel = '#block-'+bucketString(data.coords, true);
     d3.select(sel).transition(10000).style('fill', data.color);
   } catch (e) {
+    console.log(e, msg);
   }
 }
 
