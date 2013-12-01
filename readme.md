@@ -2,7 +2,7 @@
 
 ### (a bit of coding with friends + example of evented, streamy python I may reuse)
 
-![protofog thematic map rendering](http://pics.aguacat.es/pics/protofog-pics/protofog-ex.png)
+![protofog thematic map rendering](http://pics.cityrewrite.com/pics/protofog-pics/protofog-ex.png)
 
 Overview:
 
